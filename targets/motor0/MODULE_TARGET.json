@@ -2,7 +2,7 @@
   "name": "motor0",
   "description": "motor0",
   "module": "udc",
-  "required_packages": [],
+  "required_packages": [ "pid" ],
   "sources": [
     "main.cpp"
   ],
