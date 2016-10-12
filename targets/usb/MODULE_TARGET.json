@@ -1,0 +1,10 @@
+{
+  "name": "usb",
+  "description": "usb",
+  "module": "usb",
+  "required_packages": [],
+  "sources": [
+    "main.cpp"
+  ],
+  "includes": []
+}
