@@ -11,9 +11,8 @@
 
 // --- NODES ------------------------------------------------------------------
 #include <core/sensor_publisher/Publisher.hpp>
-#include <core/actuator_subscriber/Subscriber.hpp>
+#include <core/actuator_subscriber/Speed.hpp>
 #include <core/led/Subscriber.hpp>
-#include <core/pid/PIDNode.hpp>
 
 // --- BOARD IMPL -------------------------------------------------------------
 #include <core/QEI_driver/QEI.hpp>
@@ -24,15 +23,13 @@ Module module;
 
 // --- TYPES ------------------------------------------------------------------
 using QEI_Publisher  = core::sensor_publisher::Publisher<ModuleConfiguration::QEI_DELTA_DATATYPE>;
-using PWM_Subscriber = core::actuator_subscriber::Subscriber<float, core::actuator_msgs::Setpoint_f32>;
-using PIDNode = pid::PIDNode;
+using SpeedPID = core::actuator_subscriber::Speed<float, core::actuator_msgs::Setpoint_f32>;
 
 // --- NODES ------------------------------------------------------------------
 core::led::Subscriber led_subscriber("led_subscriber", core::os::Thread::PriorityEnum::LOWEST);
 
 QEI_Publisher  encoder("encoder", module.qei, core::os::Thread::PriorityEnum::NORMAL);
-PWM_Subscriber motor("actuator_sub", module.pwm, core::os::Thread::PriorityEnum::NORMAL);
-PIDNode pid_node("pid", core::os::Thread::PriorityEnum::NORMAL);
+SpeedPID pid_node("speed", module.pwm, core::os::Thread::PriorityEnum::NORMAL);
 
 // --- MAIN -------------------------------------------------------------------
 extern "C" {
@@ -46,7 +43,6 @@ extern "C" {
       // Add nodes to the node manager (== board)...
       module.add(led_subscriber);
       module.add(encoder);
-      module.add(motor);
       module.add(pid_node);
 
       // Module configuration
@@ -67,21 +63,17 @@ extern "C" {
       encoder_configuration.topic = "encoder_1";
       encoder.setConfiguration(encoder_configuration);
 
-      //Motor
-      core::actuator_subscriber::Configuration pwm_conf;
-      pwm_conf.topic = "pwm_1";
-      motor.setConfiguration(pwm_conf);
-
       //Pid
-      pid_node.configuration.kp = 100;
-      pid_node.configuration.ti = 0;
-      pid_node.configuration.td = 0;
-      pid_node.configuration.ts = 1.0/period;
-      pid_node.configuration.measure_topic = "encoder_1";
-      pid_node.configuration.output_topic = "pwm_1";
-      pid_node.configuration.setpoint_topic = "speed_1";
-      pid_node.configuration.idle = 0;
-      pid_node.configuration.timeout = 500;
+      core::actuator_subscriber::SpeedConfiguration pid_configuration;
+      pid_configuration.kp = 100;
+      pid_configuration.ti = 0;
+      pid_configuration.td = 0;
+      pid_configuration.ts = 1.0/period;
+      pid_configuration.encoder_topic = "encoder_1";
+      pid_configuration.setpoint_topic = "speed_1";
+      pid_configuration.idle = 0;
+      pid_configuration.timeout = 500;
+      pid_node.setConfiguration(pid_configuration);
 
       // ... and let's play!
       module.setup();
