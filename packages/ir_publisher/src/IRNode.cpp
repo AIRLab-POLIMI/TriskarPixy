@@ -58,13 +58,23 @@ IRNode::IRNode(const char* name, core::os::Thread::Priority priority) :
 
 IRNode::~IRNode()
 {
-	
+
 }
 
 bool IRNode::onConfigure()
 {
 	_Ts = core::os::Time::hz(configuration().frequency);
 	_stamp = core::os::Time::now();
+
+
+	palSetPadMode(GPIOA, GPIOA_PIN0, PAL_MODE_INPUT_ANALOG);
+	palSetPadMode(GPIOA, GPIOA_PIN1, PAL_MODE_INPUT_ANALOG);
+	palSetPadMode(GPIOA, GPIOA_PIN2, PAL_MODE_INPUT_ANALOG);
+	palSetPadMode(GPIOA, GPIOA_PIN3, PAL_MODE_INPUT_ANALOG);
+	palSetPadMode(GPIOA, GPIOA_PIN4, PAL_MODE_INPUT_ANALOG);
+	palSetPadMode(GPIOA, GPIOA_PIN5, PAL_MODE_INPUT_ANALOG);
+	palSetPadMode(GPIOA, GPIOA_PIN6, PAL_MODE_INPUT_ANALOG);
+	palSetPadMode(GPIOA, GPIOA_PIN7, PAL_MODE_INPUT_ANALOG);
 
 	return true;
 }
