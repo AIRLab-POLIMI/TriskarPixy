@@ -1,0 +1,44 @@
+{
+  "name": "InverseConfiguration",
+  "description": "Inverse kinematics node configuration",
+  "namespace": "@",
+  "fields": [
+    {
+      "name": "velocity_input",
+      "description": "Velocity setpoint topic name",
+      "type": "CHAR",
+      "size": 16
+    },
+    {
+      "name": "left_output",
+      "description": "Left wheel output topic name",
+      "type": "CHAR",
+      "size": 16
+    },
+    {
+      "name": "right_output",
+      "description": "Right wheel output topic name",
+      "type": "CHAR",
+      "size": 16
+    },
+    {
+      "name": "distance",
+      "description": "Distance between wheels [m]",
+      "type": "FLOAT32",
+      "size": 1
+    },
+    {
+      "name": "left_radius",
+      "description": "Left wheel radius [m]",
+      "type": "FLOAT32",
+      "size": 1
+    },
+    {
+      "name": "right_radius",
+      "description": "Right wheel radius [m]",
+      "type": "FLOAT32",
+      "size": 1
+    }
+    
+ ]
+}

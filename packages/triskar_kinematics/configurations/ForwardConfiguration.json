@@ -1,0 +1,43 @@
+{
+  "name": "ForwardConfiguration",
+  "description": "Forward kinematics node configuration",
+  "namespace": "@",
+  "fields": [
+    {
+      "name": "left_input",
+      "description": "Left wheel topic name",
+      "type": "CHAR",
+      "size": 16
+    },
+    {
+      "name": "right_input",
+      "description": "Right wheel topic name",
+      "type": "CHAR",
+      "size": 16
+    },
+    {
+      "name": "output",
+      "description": "Output topic name",
+      "type": "CHAR",
+      "size": 16
+    },
+    {
+      "name": "distance",
+      "description": "Distance between wheels",
+      "type": "FLOAT32",
+      "size": 1
+    },
+    {
+      "name": "left_radius",
+      "description": "Left wheel radius",
+      "type": "FLOAT32",
+      "size": 1
+    },
+    {
+      "name": "right_radius",
+      "description": "Right wheel radius",
+      "type": "FLOAT32",
+      "size": 1
+    }
+  ]
+}
