@@ -13,12 +13,12 @@
 
 #include <ModuleConfiguration.hpp>
 
-#include <core/differential_drive_kinematics/InverseConfiguration.hpp>
-#include <core/differential_drive_msgs/Velocity.hpp>
+#include <core/triskar_kinematics/InverseConfiguration.hpp>
+#include <core/triskar_msgs/Velocity.hpp>
 #include <core/actuator_msgs/Setpoint_f32.hpp>
 
 namespace core {
-namespace differential_drive_kinematics {
+namespace triskar_kinematics {
 class Inverse:
    public mw::CoreNode,
    public mw::CoreConfigurable<InverseConfiguration>
@@ -40,15 +40,14 @@ private:
 
    static bool
    callback(
-      const differential_drive_msgs::Velocity& msg,
+      const triskar_msgs::Velocity& msg,
       void*                                    context
    );
 
 
 private:
-   mw::Subscriber<differential_drive_msgs::Velocity, 5> _subscriber;
-   mw::Publisher<actuator_msgs::Setpoint_f32> _left_wheel_publisher;
-   mw::Publisher<actuator_msgs::Setpoint_f32> _right_wheel_publisher;
+   mw::Subscriber<triskar_msgs::Velocity, 5> _subscriber;
+   mw::Publisher<actuator_msgs::Setpoint_f32> _wheel_publisher[3];
 };
 }
 }

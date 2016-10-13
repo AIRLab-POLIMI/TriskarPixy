@@ -6,15 +6,15 @@
 
 #include <Module.hpp>
 
-#include <core/differential_drive_kinematics/Forward.hpp>
+#include <core/triskar_kinematics/Forward.hpp>
 #include <core/utils/math/Constants.hpp>
 #include <core/utils/math/Conversions.hpp>
 
-#include <core/differential_drive_msgs/Velocity.hpp>
-#include <core/differential_drive_msgs/Speeds.hpp>
+#include <core/triskar_msgs/Velocity.hpp>
+#include <core/triskar_msgs/Speeds.hpp>
 
 namespace core {
-namespace differential_drive_kinematics {
+namespace triskar_kinematics {
 Forward::Forward(
    const char*          name,
    os::Thread::Priority priority
@@ -33,11 +33,14 @@ Forward::~Forward()
 bool
 Forward::onPrepareMW()
 {
-   _subscriber_left.set_callback(Forward::callback_left);
-   _subscriber_right.set_callback(Forward::callback_right);
+   _subscriber[0].set_callback(Forward::callback<0>);
+   _subscriber[1].set_callback(Forward::callback<1>);
+   _subscriber[2].set_callback(Forward::callback<2>);
 
-   this->subscribe(_subscriber_left, configuration().left_input);
-   this->subscribe(_subscriber_right, configuration().right_input);
+   this->subscribe(_subscriber[0], configuration().input_0);
+   this->subscribe(_subscriber[1], configuration().input_1);
+   this->subscribe(_subscriber[2], configuration().input_2);
+
    this->advertise(_publisher, configuration().output);
 
    return true;
@@ -46,17 +49,15 @@ Forward::onPrepareMW()
 bool
 Forward::onLoop()
 {
-   differential_drive_msgs::Velocity* velocity;
+   triskar_msgs::Velocity* velocity;
 
    if (this->spin(ModuleConfiguration::SUBSCRIBER_SPIN_TIME)) {
       if (_publisher.alloc(velocity)) {
-         float d  = configuration().distance;
-         float lr = configuration().left_radius;
-         float rr = configuration().right_radius;
 
          /// PUBLISH THE RESULTS
-         velocity->linear  = ((_speed_left * lr) - (_speed_right * rr)) * 0.5f * 2.0f * core::utils::math::constants::pi<float>();
-         velocity->angular = ((_speed_left * lr) + (_speed_right * rr)) / d * 0.5f * 2.0f * core::utils::math::constants::pi<float>();
+         velocity->linear[0]  = 0;
+         velocity->linear[1]  = 0;
+         velocity->angular = 0;
 
          _publisher.publish(velocity);
       }
@@ -65,30 +66,5 @@ Forward::onLoop()
    return true;
 } // Forward::onLoop
 
-bool
-Forward::callback_left(
-   const core::sensor_msgs::Delta_f32& msg,
-   void*                               context
-)
-{
-   Forward* _this = static_cast<Forward*>(context);
-
-   _this->_speed_left = msg.value;
-
-   return true;
-} // Forward::callback_left
-
-bool
-Forward::callback_right(
-   const core::sensor_msgs::Delta_f32& msg,
-   void*                               context
-)
-{
-   Forward* _this = static_cast<Forward*>(context);
-
-   _this->_speed_right = msg.value;
-
-   return true;
-} // Forward::callback_right
 }
 }

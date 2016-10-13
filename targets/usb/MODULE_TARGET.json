@@ -2,7 +2,9 @@
   "name": "usb",
   "description": "usb",
   "module": "usb",
-  "required_packages": [ "pixy_driver", "pixy_msgs" ],
+  "required_packages": [ "pixy_driver", "pixy_msgs", 
+  "triskar_kinematics", "triskar_msgs",
+  "actuator_msgs", "sensor_msgs"],
   "sources": [
     "main.cpp"
   ],

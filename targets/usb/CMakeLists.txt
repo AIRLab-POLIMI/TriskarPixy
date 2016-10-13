@@ -21,4 +21,8 @@ core_target_module(
   PACKAGES
     pixy_driver
     pixy_msgs
+    triskar_kinematics
+    triskar_msgs
+    actuator_msgs
+    sensor_msgs
 )

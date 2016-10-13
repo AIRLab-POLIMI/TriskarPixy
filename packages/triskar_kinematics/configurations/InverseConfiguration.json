@@ -10,32 +10,32 @@
       "size": 16
     },
     {
-      "name": "left_output",
-      "description": "Left wheel output topic name",
+      "name": "output_0",
+      "description": "Wheel 0 output topic name",
       "type": "CHAR",
       "size": 16
     },
     {
-      "name": "right_output",
-      "description": "Right wheel output topic name",
+      "name": "output_1",
+      "description": "Wheel 1 output topic name",
       "type": "CHAR",
       "size": 16
     },
     {
-      "name": "distance",
-      "description": "Distance between wheels [m]",
+      "name": "output_2",
+      "description": "Wheel 2 output topic name",
+      "type": "CHAR",
+      "size": 16
+    },
+    {
+      "name": "center_distance",
+      "description": "Distance between wheels and center of the robot [m]",
       "type": "FLOAT32",
       "size": 1
     },
     {
-      "name": "left_radius",
-      "description": "Left wheel radius [m]",
-      "type": "FLOAT32",
-      "size": 1
-    },
-    {
-      "name": "right_radius",
-      "description": "Right wheel radius [m]",
+      "name": "wheel_radius",
+      "description": "Wheel radius [m]",
       "type": "FLOAT32",
       "size": 1
     }

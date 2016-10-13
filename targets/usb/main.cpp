@@ -8,6 +8,8 @@
 #include <core/led/Subscriber.hpp>
 #include <core/led/Publisher.hpp>
 #include <core/pixy_driver/PixyNode.hpp>
+#include <core/triskar_kinematics/Forward.hpp>
+#include <core/triskar_kinematics/Inverse.hpp>
 
 // --- BOARD IMPL -------------------------------------------------------------
 
@@ -20,6 +22,8 @@ Module module;
 core::led::Subscriber led_subscriber("led_subscriber", core::os::Thread::PriorityEnum::LOWEST);
 core::led::Publisher  led_publisher("led_publisher");
 core::pixy_driver::PixyNode pixy("pixy", core::os::Thread::PriorityEnum::NORMAL);
+core::triskar_kinematics::Forward forward("forward", core::os::Thread::PriorityEnum::NORMAL);
+core::triskar_kinematics::Inverse inverse("inverse", core::os::Thread::PriorityEnum::NORMAL);
 
 /*
  * Application entry point.
@@ -54,6 +58,8 @@ extern "C" {
       module.add(led_subscriber);
       module.add(led_publisher);
       module.add(pixy);
+      module.add(forward);
+      module.add(inverse);
 
       // ... and let's play!
       module.setup();

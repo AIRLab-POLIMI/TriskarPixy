@@ -6,15 +6,15 @@
 
 #include <Module.hpp>
 
-#include <core/differential_drive_kinematics/Inverse.hpp>
+#include <core/triskar_kinematics/Inverse.hpp>
 #include <core/utils/math/Constants.hpp>
 #include <core/utils/math/Conversions.hpp>
 
-#include <core/differential_drive_msgs/Velocity.hpp>
+#include <core/triskar_msgs/Velocity.hpp>
 #include <core/actuator_msgs/Setpoint_f32.hpp>
 
 namespace core {
-namespace differential_drive_kinematics {
+namespace triskar_kinematics {
 Inverse::Inverse(
    const char*          name,
    os::Thread::Priority priority
@@ -36,8 +36,9 @@ Inverse::onPrepareMW()
    _subscriber.set_callback(Inverse::callback);
 
    this->subscribe(_subscriber, configuration().velocity_input);
-   this->advertise(_left_wheel_publisher, configuration().left_output);
-   this->advertise(_right_wheel_publisher, configuration().right_output);
+   this->advertise(_wheel_publisher[0], configuration().output_0);
+   this->advertise(_wheel_publisher[1], configuration().output_1);
+   this->advertise(_wheel_publisher[2], configuration().output_2);
 
    return true;
 }
@@ -52,38 +53,33 @@ Inverse::onLoop()
 
 bool
 Inverse::callback(
-   const differential_drive_msgs::Velocity& msg,
+   const triskar_msgs::Velocity& msg,
    void*                                    context
 )
 {
    Inverse* _this = static_cast<Inverse*>(context);
 
-   actuator_msgs::Setpoint_f32* left_speed;
-   actuator_msgs::Setpoint_f32* right_speed;
-   float v     = msg.linear;
+   actuator_msgs::Setpoint_f32* _speed[3];
+
+   float vx     = msg.linear[0];
+   float vy     = msg.linear[1];
    float omega = msg.angular;
 
-   float d  = _this->configuration().distance;
-   float lr = _this->configuration().left_radius;
-   float rr = _this->configuration().right_radius;
 
    /// DO THE MATH
-   if (_this->_left_wheel_publisher.alloc(left_speed)) {
-      /// PUBLISH THE RESULTS
-      left_speed->value = (1 / lr) * (v + (d / 2) * omega);
 
-      if (!_this->_left_wheel_publisher.publish(left_speed)) {
-         return false;
-      }
-   }
 
-   if (_this->_right_wheel_publisher.alloc(right_speed)) {
-      /// PUBLISH THE RESULTS
-      right_speed->value = -(1 / rr) * (v - (d / 2) * omega);
+   for(unsigned int i = 0; i < 3; i++)
+   {
+	   if (_this->_wheel_publisher[i].alloc(_speed[i])) {
+	      /// PUBLISH THE RESULTS
+	      _speed[i]->value = 0;
 
-      if (!_this->_right_wheel_publisher.publish(right_speed)) {
-         return false;
-      }
+	      if (!_this->_wheel_publisher[i].publish(_speed[i]))
+	      {
+	         return false;
+	      }
+	   }
    }
 
    return true;

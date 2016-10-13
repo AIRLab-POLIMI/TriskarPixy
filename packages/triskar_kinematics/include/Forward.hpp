@@ -12,12 +12,12 @@
 
 #include <ModuleConfiguration.hpp>
 
-#include <core/differential_drive_kinematics/ForwardConfiguration.hpp>
-#include <core/differential_drive_msgs/Velocity.hpp>
+#include <core/triskar_kinematics/ForwardConfiguration.hpp>
+#include <core/triskar_msgs/Velocity.hpp>
 #include <core/sensor_msgs/Delta_f32.hpp>
 
 namespace core {
-namespace differential_drive_kinematics {
+namespace triskar_kinematics {
 class Forward:
    public mw::CoreNode,
    public mw::CoreConfigurable<ForwardConfiguration>
@@ -37,26 +37,28 @@ private:
    bool
    onLoop();
 
+private:
+   template<int index>
    static bool
-   callback_left(
+   callback(
       const core::sensor_msgs::Delta_f32& msg,
       void*                               context
-   );
+   )
+   {
+	   Forward* _this = static_cast<Forward*>(context);
 
-   static bool
-   callback_right(
-      const core::sensor_msgs::Delta_f32& msg,
-      void*                               context
-   );
+	   _this->_speed[index] = msg.value;
+
+	   return true;
+   }
+
 
 
 private:
-   mw::Subscriber<core::sensor_msgs::Delta_f32, 2>  _subscriber_left;
-   mw::Subscriber<core::sensor_msgs::Delta_f32, 2>  _subscriber_right;
-   mw::Publisher<differential_drive_msgs::Velocity> _publisher;
+   mw::Subscriber<core::sensor_msgs::Delta_f32, 2>  _subscriber[3];
+   mw::Publisher<triskar_msgs::Velocity> _publisher;
 
-   float _speed_right;
-   float _speed_left;
+   float _speed[3];
 };
 }
 }
