@@ -13,6 +13,11 @@
 #include <core/triskar_msgs/Velocity.hpp>
 #include <core/actuator_msgs/Setpoint_f32.hpp>
 
+#include <cmath>
+
+using namespace core::utils::math::constants;
+using namespace std;
+
 namespace core {
 namespace triskar_kinematics {
 Inverse::Inverse(
@@ -59,21 +64,28 @@ Inverse::callback(
 {
    Inverse* _this = static_cast<Inverse*>(context);
 
+   const float L = _this->configuration().center_distance;
+   const float R = _this->configuration().wheel_radius;
+
    actuator_msgs::Setpoint_f32* _speed[3];
 
-   float vx     = msg.linear[0];
-   float vy     = msg.linear[1];
-   float omega = msg.angular;
+   float dx = msg.linear[0];
+   float dy = msg.linear[1];
+   float dphi = msg.angular;
 
 
    /// DO THE MATH
+   float dtheta[3];
 
+   dtheta[0] = (-cos(pi<float>()/3.0)*dy - cos(pi<float>()/6.0)*dx - L*dphi)/R;
+   dtheta[1] = (-cos(pi<float>()/3.0)*dy + cos(pi<float>()/6.0)*dx - L*dphi)/R;
+   dtheta[2] = (dy - L*dphi)/R;
 
    for(unsigned int i = 0; i < 3; i++)
    {
 	   if (_this->_wheel_publisher[i].alloc(_speed[i])) {
 	      /// PUBLISH THE RESULTS
-	      _speed[i]->value = 0;
+	      _speed[i]->value = dtheta[i];
 
 	      if (!_this->_wheel_publisher[i].publish(_speed[i]))
 	      {

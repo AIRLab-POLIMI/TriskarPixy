@@ -13,6 +13,11 @@
 #include <core/triskar_msgs/Velocity.hpp>
 #include <core/triskar_msgs/Speeds.hpp>
 
+#include <cmath>
+
+using namespace core::utils::math::constants;
+using namespace std;
+
 namespace core {
 namespace triskar_kinematics {
 Forward::Forward(
@@ -51,13 +56,21 @@ Forward::onLoop()
 {
    triskar_msgs::Velocity* velocity;
 
+   const float R = configuration().wheel_radius;
+   const float L = configuration().center_distance;
+
+
+   float dx = -R*cos(pi<float>()/6.0)*_speed[0] + R*cos(pi<float>()/6.0)*_speed[1];
+   float dy = -R*cos(pi<float>()/3.0)*_speed[0] - R*cos(pi<float>()/3.0)*_speed[1] + R * _speed[2];
+   float dphi = -(R*_speed[0]+R*_speed[1]+R*_speed[2])/L;
+
    if (this->spin(ModuleConfiguration::SUBSCRIBER_SPIN_TIME)) {
       if (_publisher.alloc(velocity)) {
 
          /// PUBLISH THE RESULTS
-         velocity->linear[0]  = 0;
-         velocity->linear[1]  = 0;
-         velocity->angular = 0;
+         velocity->linear[0] = dx;
+         velocity->linear[1] = dy;
+         velocity->angular = dphi;
 
          _publisher.publish(velocity);
       }
