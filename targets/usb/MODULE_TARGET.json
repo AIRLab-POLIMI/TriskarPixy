@@ -2,7 +2,7 @@
   "name": "usb",
   "description": "usb",
   "module": "usb",
-  "required_packages": [],
+  "required_packages": [ "pixy_driver", "pixy_msgs" ],
   "sources": [
     "main.cpp"
   ],

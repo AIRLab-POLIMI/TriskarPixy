@@ -1,0 +1,14 @@
+{
+  "name": "PixyNodeConfiguration", 
+  "description": "Pixy node configuration", 
+  "namespace": "@", 
+  "fields": [ 
+    {
+      "name": "topic", 
+      "description": "Name of the topic", 
+      "type": "CHAR", 
+      "size": 16 
+    }
+  ]
+}  
+ 

@@ -1,0 +1,43 @@
+{
+  "name": "Pixy",
+  "description": "Pixy detected object",
+  "namespace": "@",
+  "fields": [
+    {
+      "name": "checksum",
+      "description": "Pixy block checksum",
+      "type": "INT32",
+      "size": 1
+    },
+    {
+      "name": "signature",
+      "description": "Pixy signature",
+      "type": "INT32",
+      "size": 1
+    },
+    {
+      "name": "x",
+      "description": "Object x position",
+      "type": "INT32",
+      "size": 1
+    },
+    {
+      "name": "y",
+      "description": "Object y position",
+      "type": "INT32",
+      "size": 1
+    },
+    {
+      "name": "width",
+      "description": "Object width",
+      "type": "INT32",
+      "size": 1
+    },
+    {
+      "name": "height",
+      "description": "Object height",
+      "type": "INT32",
+      "size": 1
+    }
+  ]
+} 

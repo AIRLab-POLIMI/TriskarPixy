@@ -7,6 +7,7 @@
 // --- NODES ------------------------------------------------------------------
 #include <core/led/Subscriber.hpp>
 #include <core/led/Publisher.hpp>
+#include <core/pixy_driver/PixyNode.hpp>
 
 // --- BOARD IMPL -------------------------------------------------------------
 
@@ -18,6 +19,7 @@ Module module;
 // --- NODES ------------------------------------------------------------------
 core::led::Subscriber led_subscriber("led_subscriber", core::os::Thread::PriorityEnum::LOWEST);
 core::led::Publisher  led_publisher("led_publisher");
+core::pixy_driver::PixyNode pixy("pixy", core::os::Thread::PriorityEnum::NORMAL);
 
 /*
  * Application entry point.
@@ -43,9 +45,15 @@ extern "C" {
       led_subscriber.setConfiguration(led_subscriber_configuration);
       module.add(led_subscriber);
 
+      //Pixy node
+      core::pixy_driver::PixyNodeConfiguration pixy_conf;
+      pixy_conf.topic = "pixy";
+      pixy.setConfiguration(pixy_conf);
+
       // Add nodes to the node manager (== board)...
       module.add(led_subscriber);
       module.add(led_publisher);
+      module.add(pixy);
 
       // ... and let's play!
       module.setup();
