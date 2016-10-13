@@ -1,0 +1,6 @@
+{
+  "name": "ir_publisher",
+  "description": "Package for publishing up to 8 IR readings", 
+  "provider": "core", 
+  "sources": ["IRNode.cpp"]
+}  

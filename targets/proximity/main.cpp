@@ -6,6 +6,7 @@
 
 // NODES
 #include <core/led/Subscriber.hpp>
+#include <core/ir_publisher/IRNode.hpp>
 
 // BOARD IMPL
 

@@ -2,7 +2,7 @@
   "name": "proximity",
   "description": "proximity",
   "module": "proximity",
-  "required_packages": [],
+  "required_packages": [ "ir_publisher", "sensor_msgs" ],
   "sources": [
     "main.cpp"
   ],
