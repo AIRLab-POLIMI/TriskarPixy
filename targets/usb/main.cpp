@@ -11,6 +11,8 @@
 #include <core/triskar_kinematics/Forward.hpp>
 #include <core/triskar_kinematics/Inverse.hpp>
 
+#include "rosserial.hpp"
+
 // --- BOARD IMPL -------------------------------------------------------------
 
 // --- MISC -------------------------------------------------------------------
@@ -24,6 +26,7 @@ core::led::Publisher  led_publisher("led_publisher");
 core::pixy_driver::PixyNode pixy("pixy", core::os::Thread::PriorityEnum::NORMAL);
 core::triskar_kinematics::Forward forward("forward", core::os::Thread::PriorityEnum::NORMAL);
 core::triskar_kinematics::Inverse inverse("inverse", core::os::Thread::PriorityEnum::NORMAL);
+rosserial::RosSerialPublisher ros_node("ros", core::os::Thread::PriorityEnum::NORMAL);
 
 /*
  * Application entry point.
@@ -60,6 +63,7 @@ extern "C" {
       module.add(pixy);
       module.add(forward);
       module.add(inverse);
+      module.add(ros_node);
 
       // ... and let's play!
       module.setup();

@@ -6,7 +6,10 @@
   "triskar_kinematics", "triskar_msgs",
   "actuator_msgs", "sensor_msgs"],
   "sources": [
-    "main.cpp"
+    "main.cpp", 
+    "rosserial.cpp",
+    "ros_lib/duration.cpp",
+    "ros_lib/time.cpp"
   ],
-  "includes": []
+  "includes": ["ros_lib"]
 }
