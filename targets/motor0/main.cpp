@@ -37,6 +37,7 @@ extern "C" {
    main()
    {
 	  const float period = 50.0;
+	  const float maxOmega = 52.0f;
 
       module.initialize();
 
@@ -69,6 +70,8 @@ extern "C" {
       pid_configuration.ti = 0;
       pid_configuration.td = 0;
       pid_configuration.ts = 1.0/period;
+      pid_configuration.min = -maxOmega;
+      pid_configuration.max = maxOmega;
       pid_configuration.encoder_topic = "encoder_0";
       pid_configuration.setpoint_topic = "speed_0";
       pid_configuration.idle = 0;

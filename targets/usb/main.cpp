@@ -32,11 +32,11 @@ rosserial::RosSerialPublisher ros_node("ros", core::os::Thread::PriorityEnum::NO
  * Application entry point.
  */
 extern "C" {
-   int
-   main(
-      void
-   )
+   int main( void )
    {
+	  const float wheelRadius = 0.035f;
+	  const float centerDistance = 0.160f;
+
       module.initialize();
 
       // Led publisher node
@@ -56,6 +56,26 @@ extern "C" {
       core::pixy_driver::PixyNodeConfiguration pixy_conf;
       pixy_conf.topic = "pixy";
       pixy.setConfiguration(pixy_conf);
+
+      //Forward kinematics configuration
+      core::triskar_kinematics::ForwardConfiguration forward_conf;
+      forward_conf.input_0 = "encoder_0";
+      forward_conf.input_1 = "encoder_1";
+      forward_conf.input_2 = "encoder_2";
+      forward_conf.output = "vel";
+      forward_conf.wheel_radius = wheelRadius;
+      forward_conf.center_distance = centerDistance;
+      forward.setConfiguration(forward_conf);
+
+      //Inverse kinematics configuration
+      core::triskar_kinematics::InverseConfiguration inverse_conf;
+      inverse_conf.output_0 = "speed_0";
+      inverse_conf.output_1 = "speed_1";
+      inverse_conf.output_2 = "speed_2";
+      inverse_conf.velocity_input = "cmd_vel";
+      inverse_conf.wheel_radius = wheelRadius;
+      inverse_conf.center_distance = centerDistance;
+      inverse.setConfiguration(inverse_conf);
 
       // Add nodes to the node manager (== board)...
       module.add(led_subscriber);
