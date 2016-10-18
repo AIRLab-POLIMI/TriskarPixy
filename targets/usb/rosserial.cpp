@@ -120,7 +120,8 @@ bool RosSerialPublisher::onLoop() {
 	return true;
 }
 
-bool RosSerialPublisher::onStart() {
+bool RosSerialPublisher::onStart()
+{
 	nh.initNode();
 	nh.advertise(twist_pub);
 	nh.advertise(ir_pub);
