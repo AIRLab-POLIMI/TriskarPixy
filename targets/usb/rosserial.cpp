@@ -15,10 +15,14 @@ RosSerialPublisher::RosSerialPublisher(const char* name,
 		core::os::Thread::Priority priority) :
 		CoreNode::CoreNode(name, priority),
 		twist_pub(twist_name, &ros_twist_msg),
+		ir_pub(twist_name, &ros_ir_msg),
+		pixy_pub(twist_name, &ros_pixy_msg),
 		setpoint_sub(setpointName, RosSerialPublisher::setpointCallback)
 {
 	_workingAreaSize = 512;
 	twist = false;
+	pixy = false;
+	ir = false;
 }
 
 bool RosSerialPublisher::onPrepareMW() {
@@ -52,6 +56,39 @@ bool RosSerialPublisher::twistCallback(const core::triskar_msgs::Velocity& msg,
 	return true;
 }
 
+
+bool RosSerialPublisher::pixyCallback(const core::pixy_msgs::Pixy& msg,
+				   void* node)
+{
+	RosSerialPublisher* tmp = static_cast<RosSerialPublisher*>(node);
+
+	tmp->ros_pixy_msg.checksum = msg.checksum;
+	tmp->ros_pixy_msg.signature = msg.signature;
+	tmp->ros_pixy_msg.x = msg.x;
+	tmp->ros_pixy_msg.y = msg.y;
+	tmp->ros_pixy_msg.width = msg.width;
+	tmp->ros_pixy_msg.height = msg.height;
+
+	tmp->pixy = true;
+
+	return true;
+}
+
+bool RosSerialPublisher::irCallback(const core::sensor_msgs::Proximity& msg,
+				   void* node)
+{
+	RosSerialPublisher* tmp = static_cast<RosSerialPublisher*>(node);
+
+	for( unsigned int i = 0; i < 8; i++)
+		tmp->ros_ir_msg.range[i] = msg.value[i];
+
+
+	tmp->ir = true;
+
+	return true;
+}
+
+
 bool RosSerialPublisher::onLoop() {
 
 	if(this->spin(core::os::Time::ms(1)))
@@ -60,6 +97,18 @@ bool RosSerialPublisher::onLoop() {
 		{
 			twist_pub.publish(&ros_twist_msg);
 			twist = false;
+		}
+
+		if(ir)
+		{
+			ir_pub.publish(&ros_ir_msg);
+			ir = false;
+		}
+
+		if(pixy)
+		{
+			pixy_pub.publish(&ros_pixy_msg);
+			pixy = false;
 		}
 	}
 
@@ -74,6 +123,8 @@ bool RosSerialPublisher::onLoop() {
 bool RosSerialPublisher::onStart() {
 	nh.initNode();
 	nh.advertise(twist_pub);
+	nh.advertise(ir_pub);
+	nh.advertise(pixy_pub);
 
 	nh.subscribe(setpoint_sub);
 
