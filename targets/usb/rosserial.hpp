@@ -65,8 +65,8 @@ private:
 private:
     //Nova Core
     core::mw::Subscriber<core::triskar_msgs::Velocity, 5> _subscriberTwist;
-    core::mw::Subscriber<core::triskar_msgs::Velocity, 5> _subscriberProximity;
-    core::mw::Subscriber<core::triskar_msgs::Velocity, 5> _subscriberPixy;
+    core::mw::Subscriber<core::sensor_msgs::Proximity, 5> _subscriberProximity;
+    core::mw::Subscriber<core::pixy_msgs::Pixy, 5> _subscriberPixy;
 	core::mw::Publisher<core::triskar_msgs::Velocity> _publisher;
 
 	bool twist;

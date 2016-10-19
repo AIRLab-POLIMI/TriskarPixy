@@ -41,15 +41,10 @@ extern "C" {
 
       module.initialize();
 
-      // Add nodes to the node manager (== board)...
-      module.add(led_subscriber);
-      module.add(encoder);
-      module.add(pid_node);
-
       // Module configuration
       core::QEI_driver::QEI_DeltaConfiguration qei_configuration;
       qei_configuration.period = period;
-      qei_configuration.ticks  = 1000;
+      qei_configuration.ticks  = 64*30;
       module.qei.setConfiguration(qei_configuration);
 
       // Nodes configuration
@@ -77,6 +72,11 @@ extern "C" {
       pid_configuration.idle = 0;
       pid_configuration.timeout = 500;
       pid_node.setConfiguration(pid_configuration);
+
+      // Add nodes to the node manager (== board)...
+      module.add(led_subscriber);
+      module.add(encoder);
+      module.add(pid_node);
 
       // ... and let's play!
       module.setup();

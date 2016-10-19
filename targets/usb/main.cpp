@@ -44,13 +44,11 @@ extern "C" {
       led_publisher_configuration.topic = "led";
       led_publisher_configuration.led   = 1;
       led_publisher.setConfiguration(led_publisher_configuration);
-      module.add(led_publisher);
 
       // Led subscriber node
       core::led::SubscriberConfiguration led_subscriber_configuration;
       led_subscriber_configuration.topic = "led";
       led_subscriber.setConfiguration(led_subscriber_configuration);
-      module.add(led_subscriber);
 
       //Pixy node
       core::pixy_driver::PixyNodeConfiguration pixy_conf;

@@ -4,6 +4,8 @@ ros::NodeHandle nh;
 
 const char* setpointName = "cmd_vel";
 const char* twist_name = "vel";
+const char* ir_name = "proximity";
+const char* pixy_name = "pixy";
 
 const float encoderFrequency = 100;
 
@@ -15,8 +17,8 @@ RosSerialPublisher::RosSerialPublisher(const char* name,
 		core::os::Thread::Priority priority) :
 		CoreNode::CoreNode(name, priority),
 		twist_pub(twist_name, &ros_twist_msg),
-		ir_pub(twist_name, &ros_ir_msg),
-		pixy_pub(twist_name, &ros_pixy_msg),
+		ir_pub(ir_name, &ros_ir_msg),
+		pixy_pub(pixy_name, &ros_pixy_msg),
 		setpoint_sub(setpointName, RosSerialPublisher::setpointCallback)
 {
 	_workingAreaSize = 512;
@@ -30,6 +32,12 @@ bool RosSerialPublisher::onPrepareMW() {
 
 	subscribe(_subscriberTwist, twist_name);
 	_subscriberTwist.set_callback(twistCallback);
+
+	subscribe(_subscriberProximity, ir_name);
+	_subscriberProximity.set_callback(irCallback);
+
+	subscribe(_subscriberPixy, ir_name);
+	_subscriberPixy.set_callback(pixyCallback);
 
 
 	advertise(_publisher, setpointName);
