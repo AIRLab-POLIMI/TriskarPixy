@@ -37,7 +37,7 @@ extern "C" {
    main()
    {
 	  const float period = 50.0;
-	  const float maxOmega = 52.0f;
+	  const float pwmMax = 1.0;
 
       module.initialize();
 
@@ -61,12 +61,12 @@ extern "C" {
 
       //Pid
       core::actuator_subscriber::SpeedConfiguration pid_configuration;
-      pid_configuration.kp = 100;
+      pid_configuration.kp = 0.2;
       pid_configuration.ti = 0;
       pid_configuration.td = 0;
-      pid_configuration.ts = 1.0/period;
-      pid_configuration.min = -maxOmega;
-      pid_configuration.max = maxOmega;
+      pid_configuration.ts = period/1000.0;
+      pid_configuration.min = -pwmMax;
+      pid_configuration.max = pwmMax;
       pid_configuration.encoder_topic = "encoder_1";
       pid_configuration.setpoint_topic = "speed_1";
       pid_configuration.idle = 0;
