@@ -36,7 +36,7 @@ bool RosSerialPublisher::onPrepareMW() {
 	subscribe(_subscriberProximity, ir_name);
 	_subscriberProximity.set_callback(irCallback);
 
-	subscribe(_subscriberPixy, ir_name);
+	subscribe(_subscriberPixy, pixy_name);
 	_subscriberPixy.set_callback(pixyCallback);
 
 

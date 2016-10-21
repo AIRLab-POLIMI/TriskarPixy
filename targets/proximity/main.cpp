@@ -26,9 +26,6 @@ extern "C" {
    {
       module.initialize();
 
-      module.add(led_subscriber);
-      module.add(ir_publisher);
-
       // Led subscriber node
       core::led::SubscriberConfiguration led_subscriber_configuration;
       led_subscriber_configuration.topic = "led";
@@ -37,7 +34,12 @@ extern "C" {
       //IR node
       core::ir_publisher::IRNodeConfiguration ir_conf;
       ir_conf.topic = "proximity";
+      ir_conf.frequency = 20;
       ir_publisher.setConfiguration(ir_conf);
+
+      //add nodes
+      module.add(led_subscriber);
+      module.add(ir_publisher);
 
 
       // Setup and run
