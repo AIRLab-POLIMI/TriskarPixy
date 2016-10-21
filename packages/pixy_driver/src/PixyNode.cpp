@@ -6,6 +6,9 @@
 #define PIXY_START_WORD             0xaa55
 #define PIXY_START_WORD_CC          0xaa56
 #define PIXY_START_WORDX            0x55aa
+#define PIXY_SERVO_SYNC             0xff
+#define PIXY_CAM_BRIGHTNESS_SYNC    0xfe
+#define PIXY_LED_SYNC               0xfd
 
 
 namespace core
@@ -141,6 +144,51 @@ void PixyNode::setPixyMsg(pixy_msgs::Pixy* msgp,
 	msgp->y = y;
 	msgp->width = width;
 	msgp->height = height;
+}
+
+int PixyNode::send(uint8_t *data, int len)
+{
+  int i;
+  for (i=0; i<len; i++)
+    sdPut(&SD3,data[i]);
+
+  return len;
+}
+
+int PixyNode::setServos(uint16_t s0, uint16_t s1)
+{
+  uint8_t outBuf[6];
+
+  outBuf[0] = 0x00;
+  outBuf[1] = PIXY_SERVO_SYNC;
+  *(uint16_t *)(outBuf + 2) = s0;
+  *(uint16_t *)(outBuf + 4) = s1;
+
+  return send(outBuf, 6);
+}
+
+int PixyNode::setBrightness(uint8_t brightness)
+{
+  uint8_t outBuf[3];
+
+  outBuf[0] = 0x00;
+  outBuf[1] = PIXY_CAM_BRIGHTNESS_SYNC;
+  outBuf[2] = brightness;
+
+  return send(outBuf, 3);
+}
+
+int PixyNode::setLED(uint8_t r, uint8_t g, uint8_t b)
+{
+  uint8_t outBuf[5];
+
+  outBuf[0] = 0x00;
+  outBuf[1] = PIXY_LED_SYNC;
+  outBuf[2] = r;
+  outBuf[3] = g;
+  outBuf[4] = b;
+
+  return send(outBuf, 5);
 }
 
 

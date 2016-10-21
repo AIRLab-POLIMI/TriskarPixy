@@ -36,6 +36,11 @@ private:
 				int x,int y,
 				int width,int height);
 
+	int send(uint8_t *data, int len);
+	int setServos(uint16_t s0, uint16_t s1);
+	int setBrightness(uint8_t brightness);
+	int setLED(uint8_t r, uint8_t g, uint8_t b);
+
 
 private:
 	enum BlockType

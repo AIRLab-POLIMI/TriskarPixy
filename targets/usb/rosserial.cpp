@@ -4,6 +4,7 @@ ros::NodeHandle nh;
 
 const char* setpointName = "cmd_vel";
 const char* twist_name = "vel";
+const char* enc_name = "enc";
 const char* ir_name = "proximity";
 const char* pixy_name = "pixy";
 
@@ -19,12 +20,16 @@ RosSerialPublisher::RosSerialPublisher(const char* name,
 		twist_pub(twist_name, &ros_twist_msg),
 		ir_pub(ir_name, &ros_ir_msg),
 		pixy_pub(pixy_name, &ros_pixy_msg),
+		enc_pub(enc_name, &ros_enc_msg),
 		setpoint_sub(setpointName, RosSerialPublisher::setpointCallback)
 {
 	_workingAreaSize = 512;
 	twist = false;
 	pixy = false;
 	ir = false;
+
+	for(unsigned int i = 0; i < 3; i++)
+		encoder[i] = false;
 }
 
 bool RosSerialPublisher::onPrepareMW() {
@@ -39,6 +44,14 @@ bool RosSerialPublisher::onPrepareMW() {
 	subscribe(_subscriberPixy, pixy_name);
 	_subscriberPixy.set_callback(pixyCallback);
 
+	subscribe(_subscriberEncoder[0], "encoder_0");
+	_subscriberEncoder[0].set_callback(encoderCallback_0);
+
+	subscribe(_subscriberEncoder[1], "encoder_1");
+	_subscriberEncoder[1].set_callback(encoderCallback_1);
+
+	subscribe(_subscriberEncoder[2], "encoder_2");
+	_subscriberEncoder[2].set_callback(encoderCallback_2);
 
 	advertise(_publisher, setpointName);
 
@@ -96,6 +109,45 @@ bool RosSerialPublisher::irCallback(const core::sensor_msgs::Proximity& msg,
 	return true;
 }
 
+bool RosSerialPublisher::encoderCallback_0(const core::sensor_msgs::Delta_f32& msg,
+				   void* node)
+{
+	RosSerialPublisher* tmp = static_cast<RosSerialPublisher*>(node);
+
+	tmp->ros_enc_msg.x = msg.value;
+
+
+	tmp->encoder[0] = true;
+
+	return true;
+}
+
+bool RosSerialPublisher::encoderCallback_1(const core::sensor_msgs::Delta_f32& msg,
+					   void* node)
+{
+	RosSerialPublisher* tmp = static_cast<RosSerialPublisher*>(node);
+
+	tmp->ros_enc_msg.y = msg.value;
+
+
+	tmp->encoder[1] = true;
+
+	return true;
+}
+
+bool RosSerialPublisher::encoderCallback_2(const core::sensor_msgs::Delta_f32& msg,
+					   void* node)
+{
+	RosSerialPublisher* tmp = static_cast<RosSerialPublisher*>(node);
+
+	tmp->ros_enc_msg.z = msg.value;
+
+
+	tmp->encoder[2] = true;
+
+	return true;
+}
+
 
 bool RosSerialPublisher::onLoop() {
 
@@ -118,6 +170,14 @@ bool RosSerialPublisher::onLoop() {
 			pixy_pub.publish(&ros_pixy_msg);
 			pixy = false;
 		}
+
+		if(encoder[0] && encoder[1] && encoder[2])
+		{
+			enc_pub.publish(&ros_enc_msg);
+
+			for(unsigned int i = 0; i < 3; i++)
+				encoder[i] = false;
+		}
 	}
 
 	nh.spinOnce();
@@ -134,6 +194,7 @@ bool RosSerialPublisher::onStart()
 	nh.advertise(twist_pub);
 	nh.advertise(ir_pub);
 	nh.advertise(pixy_pub);
+	nh.advertise(enc_pub);
 
 	nh.subscribe(setpoint_sub);
 

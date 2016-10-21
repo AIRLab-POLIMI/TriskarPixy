@@ -16,7 +16,7 @@ static const ADCConversionGroup adc_group_config = {
   ADC_NUM_CHANNELS,
   NULL,
   NULL,
-  0,                                                            /* CFGR     */
+  ADC_CFGR_CONT,                                                /* CFGR     */
   ADC_TR(0, 4095),                                              /* TR1      */
   ADC_CCR_DUAL(1),                                              /* CCR      */
   {                                                             /* SMPR[2]  */
