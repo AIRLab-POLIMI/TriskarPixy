@@ -45,6 +45,7 @@ extern "C" {
       core::QEI_driver::QEI_DeltaConfiguration qei_configuration;
       qei_configuration.period = period;
       qei_configuration.ticks  = 64*30;
+      qei_configuration.invert = 0;
       module.qei.setConfiguration(qei_configuration);
 
       // Nodes configuration
@@ -62,7 +63,7 @@ extern "C" {
       //Pid
       core::actuator_subscriber::SpeedConfiguration pid_configuration;
       pid_configuration.kp = 0.2;
-      pid_configuration.ti = 0;
+      pid_configuration.ti = 1e-3;
       pid_configuration.td = 0;
       pid_configuration.ts = period/1000.0;
       pid_configuration.min = -pwmMax;

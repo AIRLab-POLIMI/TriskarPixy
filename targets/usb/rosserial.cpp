@@ -23,7 +23,7 @@ RosSerialPublisher::RosSerialPublisher(const char* name,
 		enc_pub(enc_name, &ros_enc_msg),
 		setpoint_sub(setpointName, RosSerialPublisher::setpointCallback)
 {
-	_workingAreaSize = 512;
+	_workingAreaSize = 1024;
 	twist = false;
 	pixy = false;
 	ir = false;
@@ -35,23 +35,24 @@ RosSerialPublisher::RosSerialPublisher(const char* name,
 bool RosSerialPublisher::onPrepareMW() {
 	rosCallback	= std::bind(&RosSerialPublisher::setpointCallbackPrivate, this, std::placeholders::_1);
 
-	subscribe(_subscriberTwist, twist_name);
 	_subscriberTwist.set_callback(twistCallback);
+	subscribe(_subscriberTwist, twist_name);
 
-	subscribe(_subscriberProximity, ir_name);
 	_subscriberProximity.set_callback(irCallback);
+	subscribe(_subscriberProximity, ir_name);
 
-	subscribe(_subscriberPixy, pixy_name);
 	_subscriberPixy.set_callback(pixyCallback);
+	subscribe(_subscriberPixy, pixy_name);
 
-	subscribe(_subscriberEncoder[0], "encoder_0");
+
 	_subscriberEncoder[0].set_callback(encoderCallback_0);
+	subscribe(_subscriberEncoder[0], "encoder_0");
 
-	subscribe(_subscriberEncoder[1], "encoder_1");
 	_subscriberEncoder[1].set_callback(encoderCallback_1);
+	subscribe(_subscriberEncoder[1], "encoder_1");
 
-	subscribe(_subscriberEncoder[2], "encoder_2");
 	_subscriberEncoder[2].set_callback(encoderCallback_2);
+	subscribe(_subscriberEncoder[2], "encoder_2");
 
 	advertise(_publisher, setpointName);
 
@@ -148,8 +149,47 @@ bool RosSerialPublisher::encoderCallback_2(const core::sensor_msgs::Delta_f32& m
 	return true;
 }
 
+void RosSerialPublisher::setpointCallback(const geometry_msgs::Twist& setpoint_msg)
+{
+	rosCallback(setpoint_msg);
+}
+
+void RosSerialPublisher::setpointCallbackPrivate(const geometry_msgs::Twist& setpoint_msg)
+{
+	 core::triskar_msgs::Velocity* msgp;
+
+	 if (_publisher.alloc(msgp)) {
+		 msgp->linear[0] = setpoint_msg.linear.x;
+		 msgp->linear[1] = setpoint_msg.linear.y;
+		 msgp->angular = setpoint_msg.angular.x;
+
+		 _publisher.publish(*msgp);
+	 }
+}
+
+bool RosSerialPublisher::onStart()
+{
+	nh.initNode();
+	nh.advertise(twist_pub);
+	nh.advertise(ir_pub);
+	nh.advertise(pixy_pub);
+	nh.advertise(enc_pub);
+
+	nh.subscribe(setpoint_sub);
+
+
+	nh.spinOnce();
+	core::os::Thread::sleep(core::os::Time::ms(100));
+
+	_stamp = core::os::Time::now();
+
+	return true;
+}
+
 
 bool RosSerialPublisher::onLoop() {
+
+	core::os::Thread::sleep_until(_stamp + core::os::Time::hz(100));
 
 	if(this->spin(core::os::Time::ms(1)))
 	{
@@ -182,46 +222,10 @@ bool RosSerialPublisher::onLoop() {
 
 	nh.spinOnce();
 
-	core::os::Thread::sleep(core::os::Time::ms(10));
+	_stamp = core::os::Time::now();
 
 
 	return true;
-}
-
-bool RosSerialPublisher::onStart()
-{
-	nh.initNode();
-	nh.advertise(twist_pub);
-	nh.advertise(ir_pub);
-	nh.advertise(pixy_pub);
-	nh.advertise(enc_pub);
-
-	nh.subscribe(setpoint_sub);
-
-
-	nh.spinOnce();
-	core::os::Thread::sleep(core::os::Time::ms(100));
-
-	return true;
-}
-
-
-void RosSerialPublisher::setpointCallback(const geometry_msgs::Twist& setpoint_msg)
-{
-	rosCallback(setpoint_msg);
-}
-
-void RosSerialPublisher::setpointCallbackPrivate(const geometry_msgs::Twist& setpoint_msg)
-{
-	 core::triskar_msgs::Velocity* msgp;
-
-	 if (_publisher.alloc(msgp)) {
-		 msgp->linear[0] = setpoint_msg.linear.x;
-		 msgp->linear[1] = setpoint_msg.linear.y;
-		 msgp->angular = setpoint_msg.angular.x;
-
-		 _publisher.publish(*msgp);
-	 }
 }
 
 }

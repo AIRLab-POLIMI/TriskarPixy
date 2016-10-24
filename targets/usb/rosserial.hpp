@@ -102,6 +102,9 @@ private:
 	ros::Publisher enc_pub;
 	ros::Subscriber<geometry_msgs::Twist> setpoint_sub;
 
+	//Loop
+	core::os::Time _stamp;
+
 };
 
 }

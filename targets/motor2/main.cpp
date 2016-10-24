@@ -45,6 +45,7 @@ extern "C" {
       core::QEI_driver::QEI_DeltaConfiguration qei_configuration;
       qei_configuration.period = period;
       qei_configuration.ticks  = 64*30;
+      qei_configuration.invert = 0;
       module.qei.setConfiguration(qei_configuration);
 
       // Nodes configuration
@@ -89,8 +90,6 @@ extern "C" {
          }
 
          core::os::Thread::sleep(core::os::Time::ms(500));
-
-
       }
 
       return core::os::Thread::OK;
