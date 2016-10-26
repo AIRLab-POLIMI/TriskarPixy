@@ -62,8 +62,8 @@ extern "C" {
 
       //Pid
       core::actuator_subscriber::SpeedConfiguration pid_configuration;
-      pid_configuration.kp = 0.2;
-      pid_configuration.ti = 1e-3;
+      pid_configuration.kp = 0.01;
+      pid_configuration.ti = 0;
       pid_configuration.td = 0;
       pid_configuration.ts = period/1000.0;
       pid_configuration.min = -pwmMax;

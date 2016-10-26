@@ -161,7 +161,7 @@ void RosSerialPublisher::setpointCallbackPrivate(const geometry_msgs::Twist& set
 	 if (_publisher.alloc(msgp)) {
 		 msgp->linear[0] = setpoint_msg.linear.x;
 		 msgp->linear[1] = setpoint_msg.linear.y;
-		 msgp->angular = setpoint_msg.angular.x;
+		 msgp->angular = setpoint_msg.angular.z;
 
 		 _publisher.publish(*msgp);
 	 }
