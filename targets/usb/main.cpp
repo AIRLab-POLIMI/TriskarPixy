@@ -53,6 +53,9 @@ extern "C" {
       //Pixy node
       core::pixy_driver::PixyNodeConfiguration pixy_conf;
       pixy_conf.topic = "pixy";
+      pixy_conf.topicLed = "pixy_led";
+      pixy_conf.topicServo = "pixy_servo";
+      pixy_conf.topicBrightness = "pixy_brightness";
       pixy.setConfiguration(pixy_conf);
 
       //Forward kinematics configuration

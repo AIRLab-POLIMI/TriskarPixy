@@ -7,12 +7,16 @@ const char* twist_name = "vel";
 const char* enc_name = "enc";
 const char* ir_name = "proximity";
 const char* pixy_name = "pixy";
+const char* pixy_led_name = "pixy_led";
+const char* pixy_servo_name = "pixy_servo";
 
 const float encoderFrequency = 100;
 
 namespace rosserial {
 
-std::function<void(const geometry_msgs::Twist&)> RosSerialPublisher::rosCallback;
+std::function<void(const geometry_msgs::Twist&)> RosSerialPublisher::rosCallbackTwist;
+std::function<void(const std_msgs::ColorRGBA&)> RosSerialPublisher::rosCallbackPixyColor;
+std::function<void(const triskar_msgs::PixyServo&)> RosSerialPublisher::rosCallbackPixyServo;
 
 RosSerialPublisher::RosSerialPublisher(const char* name,
 		core::os::Thread::Priority priority) :
@@ -21,7 +25,9 @@ RosSerialPublisher::RosSerialPublisher(const char* name,
 		ir_pub(ir_name, &ros_ir_msg),
 		pixy_pub(pixy_name, &ros_pixy_msg),
 		enc_pub(enc_name, &ros_enc_msg),
-		setpoint_sub(setpointName, RosSerialPublisher::setpointCallback)
+		setpoint_sub(setpointName, RosSerialPublisher::setpointCallback),
+		pixy_led_sub(pixy_led_name, RosSerialPublisher::pixyColorCallback),
+		pixy_servo_sub(pixy_servo_name, RosSerialPublisher::pixyServoCallback)
 {
 	_workingAreaSize = 1024;
 	twist = false;
@@ -33,7 +39,9 @@ RosSerialPublisher::RosSerialPublisher(const char* name,
 }
 
 bool RosSerialPublisher::onPrepareMW() {
-	rosCallback	= std::bind(&RosSerialPublisher::setpointCallbackPrivate, this, std::placeholders::_1);
+	rosCallbackTwist = std::bind(&RosSerialPublisher::setpointCallbackPrivate, this, std::placeholders::_1);
+	rosCallbackPixyColor = std::bind(&RosSerialPublisher::pixyColorCallbackPrivate, this, std::placeholders::_1);
+	rosCallbackPixyServo = std::bind(&RosSerialPublisher::pixyServoCallbackPrivate, this, std::placeholders::_1);
 
 	_subscriberTwist.set_callback(twistCallback);
 	subscribe(_subscriberTwist, twist_name);
@@ -54,7 +62,9 @@ bool RosSerialPublisher::onPrepareMW() {
 	_subscriberEncoder[2].set_callback(encoderCallback_2);
 	subscribe(_subscriberEncoder[2], "encoder_2");
 
-	advertise(_publisher, setpointName);
+	advertise(_cmd_publisher, setpointName);
+	advertise(_led_publisher, pixy_led_name);
+	advertise(_servo_publisher, pixy_servo_name);
 
 	return true;
 }
@@ -151,19 +161,57 @@ bool RosSerialPublisher::encoderCallback_2(const core::sensor_msgs::Delta_f32& m
 
 void RosSerialPublisher::setpointCallback(const geometry_msgs::Twist& setpoint_msg)
 {
-	rosCallback(setpoint_msg);
+	rosCallbackTwist(setpoint_msg);
+}
+
+void RosSerialPublisher::pixyColorCallback(const std_msgs::ColorRGBA& color_msg)
+{
+	rosCallbackPixyColor(color_msg);
+}
+
+void RosSerialPublisher::pixyServoCallback(const triskar_msgs::PixyServo& servo_msgs)
+{
+	rosCallbackPixyServo(servo_msgs);
 }
 
 void RosSerialPublisher::setpointCallbackPrivate(const geometry_msgs::Twist& setpoint_msg)
 {
 	 core::triskar_msgs::Velocity* msgp;
 
-	 if (_publisher.alloc(msgp)) {
+	 if (_cmd_publisher.alloc(msgp))
+	 {
 		 msgp->linear[0] = setpoint_msg.linear.x;
 		 msgp->linear[1] = setpoint_msg.linear.y;
 		 msgp->angular = setpoint_msg.angular.z;
 
-		 _publisher.publish(*msgp);
+		 _cmd_publisher.publish(*msgp);
+	 }
+}
+
+void RosSerialPublisher::pixyColorCallbackPrivate(const std_msgs::ColorRGBA& color_msg)
+{
+	core::pixy_msgs::Led* msgp;
+
+	 if (_led_publisher.alloc(msgp))
+	 {
+		 msgp->color[0] = color_msg.r*255;
+		 msgp->color[1] = color_msg.g*255;
+		 msgp->color[2] = color_msg.b*255;
+
+		 _led_publisher.publish(*msgp);
+	 }
+}
+
+void RosSerialPublisher::pixyServoCallbackPrivate(const triskar_msgs::PixyServo& servo_msg)
+{
+	core::pixy_msgs::Servo* msgp;
+
+	 if (_servo_publisher.alloc(msgp))
+	 {
+		 msgp->pan = servo_msg.pan;
+		 msgp->tilt = servo_msg.tilt;
+
+		 _servo_publisher.publish(*msgp);
 	 }
 }
 
@@ -176,6 +224,8 @@ bool RosSerialPublisher::onStart()
 	nh.advertise(enc_pub);
 
 	nh.subscribe(setpoint_sub);
+	nh.subscribe(pixy_led_sub);
+	nh.subscribe(pixy_servo_sub);
 
 
 	nh.spinOnce();

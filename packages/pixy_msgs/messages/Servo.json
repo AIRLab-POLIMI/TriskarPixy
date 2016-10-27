@@ -1,0 +1,20 @@
+{
+  "name": "Servo",
+  "description": "Pixy servo controls",
+  "namespace": "@",
+  "fields": [
+    {
+      "name": "pan",
+      "description": "Pixy pan servo control [0-1000]",
+      "type": "UINT16",
+      "size": 1
+    },
+    {
+      "name": "tilt",
+       "description": "Pixy tilt servo control [0-1000]",
+      "type": "UINT16",
+      "size": 1
+    }
+  ]
+} 
+ 

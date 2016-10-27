@@ -1,0 +1,13 @@
+{
+  "name": "Brightness",
+  "description": "Pixy servo controls",
+  "namespace": "@",
+  "fields": [
+    {
+      "name": "value",
+      "description": "Pixy brightness control",
+      "type": "UINT8",
+      "size": 1
+    }
+  ]
+}  

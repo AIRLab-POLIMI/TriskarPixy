@@ -1,0 +1,14 @@
+{
+  "name": "Led",
+  "description": "Pixy led controls",
+  "namespace": "@",
+  "fields": [
+    {
+      "name": "color",
+      "description": "Pixy led rgb color",
+      "type": "UINT8",
+      "size": 3
+    }
+  ]
+} 
+  

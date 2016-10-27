@@ -8,6 +8,24 @@
       "description": "Name of the topic", 
       "type": "CHAR", 
       "size": 16 
+    },
+    {
+      "name": "topicLed", 
+      "description": "Name of the topic to control led", 
+      "type": "CHAR", 
+      "size": 16 
+    },
+    {
+      "name": "topicServo", 
+      "description": "Name of the topic to control servos", 
+      "type": "CHAR", 
+      "size": 16 
+    },
+    {
+      "name": "topicBrightness", 
+      "description": "Name of the topic to conrol brightness", 
+      "type": "CHAR", 
+      "size": 16 
     }
   ]
 }  

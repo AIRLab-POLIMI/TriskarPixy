@@ -4,6 +4,9 @@
 #include <core/mw/Publisher.hpp>
 
 #include <core/pixy_msgs/Pixy.hpp>
+#include <core/pixy_msgs/Servo.hpp>
+#include <core/pixy_msgs/Led.hpp>
+#include <core/pixy_msgs/Brightness.hpp>
 #include <core/pixy_driver/PixyNodeConfiguration.hpp>
 
 namespace core
@@ -29,10 +32,21 @@ private:
 	onLoop();
 
 private:
+	static bool
+	ledCallback(const core::pixy_msgs::Led& msg,
+						   void* node);
+
+	static bool
+	servoCallback(const core::pixy_msgs::Servo& msg,
+							   void* node);
+
+	static bool
+	brightnessCallback(const core::pixy_msgs::Brightness& msg,
+							   void* node);
+private:
 	uint16_t getWord();
 	bool getStart();
-	void setPixyMsg(pixy_msgs::Pixy* msgp,
-				int checksum,int signature,
+	void publishPixyMsg(int checksum,int signature,
 				int x,int y,
 				int width,int height);
 
@@ -40,6 +54,8 @@ private:
 	int setServos(uint16_t s0, uint16_t s1);
 	int setBrightness(uint8_t brightness);
 	int setLED(uint8_t r, uint8_t g, uint8_t b);
+
+	void readFrames();
 
 
 private:
@@ -52,8 +68,13 @@ private:
 private:
 	core::mw::Publisher<pixy_msgs::Pixy> _pub;
 
-	BlockType g_blockType; // use this to remember the next object block type between function calls
-	int g_skipStart = 0;
+	core::mw::Subscriber<pixy_msgs::Led, 5> _ledSub;
+	core::mw::Subscriber<pixy_msgs::Servo, 5> _servoSub;
+	core::mw::Subscriber<pixy_msgs::Brightness, 5> _brightnessSub;
+
+
+	BlockType _blockType; // use this to remember the next object block type between function calls
+	int _skipStart;
 
 };
 

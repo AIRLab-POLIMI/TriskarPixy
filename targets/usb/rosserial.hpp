@@ -11,11 +11,15 @@
 #include <core/sensor_msgs/Proximity.hpp>
 #include <core/sensor_msgs/Delta_f32.hpp>
 #include <core/pixy_msgs/Pixy.hpp>
+#include <core/pixy_msgs/Led.hpp>
+#include <core/pixy_msgs/Servo.hpp>
 #include <core/triskar_msgs/Velocity.hpp>
 
 //ROS msgs
 #include <geometry_msgs/Twist.h>
 #include <triskar_msgs/Pixy.h>
+#include <triskar_msgs/PixyServo.h>
+#include <std_msgs/ColorRGBA.h>
 #include <triskar_msgs/IR.h>
 
 #define USE_USB_SERIAL 1
@@ -33,6 +37,12 @@ public:
 public:
 	static void
 	setpointCallback(const geometry_msgs::Twist& setpoint_msg);
+
+	static void
+	pixyColorCallback(const std_msgs::ColorRGBA& color_msg);
+
+	static void
+	pixyServoCallback(const triskar_msgs::PixyServo& servo_msg);
 
 	static bool
 	twistCallback(const core::triskar_msgs::Velocity& msg,
@@ -60,6 +70,8 @@ public:
 
 private:
 	void setpointCallbackPrivate(const geometry_msgs::Twist& setpoint_msg);
+	void pixyColorCallbackPrivate(const std_msgs::ColorRGBA& setpoint_msg);
+	void pixyServoCallbackPrivate(const triskar_msgs::PixyServo& servo_msg);
 
 private:
       bool
@@ -72,8 +84,9 @@ private:
       onLoop();
 
 private:
-
-      static std::function<void(const geometry_msgs::Twist&)> rosCallback;
+      static std::function<void(const geometry_msgs::Twist&)> rosCallbackTwist;
+      static std::function<void(const std_msgs::ColorRGBA&)> rosCallbackPixyColor;
+      static std::function<void(const triskar_msgs::PixyServo&)> rosCallbackPixyServo;
 
 private:
     //Nova Core
@@ -83,7 +96,9 @@ private:
 
     core::mw::Subscriber<core::sensor_msgs::Delta_f32, 5> _subscriberEncoder[3];
 
-	core::mw::Publisher<core::triskar_msgs::Velocity> _publisher;
+	core::mw::Publisher<core::triskar_msgs::Velocity> _cmd_publisher;
+	core::mw::Publisher<core::pixy_msgs::Led> _led_publisher;
+	core::mw::Publisher<core::pixy_msgs::Servo> _servo_publisher;
 
 	bool twist;
 	bool pixy;
@@ -101,6 +116,8 @@ private:
 	ros::Publisher pixy_pub;
 	ros::Publisher enc_pub;
 	ros::Subscriber<geometry_msgs::Twist> setpoint_sub;
+	ros::Subscriber<std_msgs::ColorRGBA> pixy_led_sub;
+	ros::Subscriber<triskar_msgs::PixyServo> pixy_servo_sub;
 
 	//Loop
 	core::os::Time _stamp;
