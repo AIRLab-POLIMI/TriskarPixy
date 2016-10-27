@@ -83,7 +83,7 @@ bool PixyNode::onLoop()
 {
 	readFrames();
 
-	spin(core::os::Time::ms(10));
+	spin(core::os::Time::ms(0));
 
 	return true;
 }
