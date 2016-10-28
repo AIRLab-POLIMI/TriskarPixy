@@ -60,9 +60,9 @@ Forward::onLoop()
    const float L = configuration().center_distance;
 
 
-   float dx = -R*cos(pi<float>()/6.0)*_speed[0] + R*cos(pi<float>()/6.0)*_speed[1];
-   float dy = -R*cos(pi<float>()/3.0)*_speed[0] - R*cos(pi<float>()/3.0)*_speed[1] + R * _speed[2];
-   float dphi = -(R*_speed[0]+R*_speed[1]+R*_speed[2])/L;
+   float dx = R*cos(pi<float>()/6.0)*_speed[0] - R*cos(pi<float>()/6.0)*_speed[1];
+   float dy = R*cos(pi<float>()/3.0)*_speed[0] + R*cos(pi<float>()/3.0)*_speed[1] - R * _speed[2];
+   float dphi = (R*_speed[0]+R*_speed[1]+R*_speed[2])/L;
 
    if (this->spin(ModuleConfiguration::SUBSCRIBER_SPIN_TIME)) {
       if (_publisher.alloc(velocity)) {
