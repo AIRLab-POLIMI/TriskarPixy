@@ -35,6 +35,9 @@ extern "C" {
       core::ir_publisher::IRNodeConfiguration ir_conf;
       ir_conf.topic = "proximity";
       ir_conf.frequency = 20;
+      ir_conf.volt = {0.4, 0.45, 0.5, 0.6, 0.75, 0.7, 1.1, 1.3, 1.65, 2.3, 2.75, 3, 3.15};
+      ir_conf.dist = {0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.25, 0.20, 0.15, 0.10, 0.08, 0.07, 0.06};
+      ir_conf.values = 13;
       ir_publisher.setConfiguration(ir_conf);
 
       //add nodes

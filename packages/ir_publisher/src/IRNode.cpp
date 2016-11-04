@@ -107,15 +107,17 @@ bool IRNode::onLoop()
 
 	adcConvert(&ADCD1, &adc_group_config, adc_samples, ADC_BUF_DEPTH);
 
+	const float adcPrecision = 3.3/4095.0;
+
 	if (_pub.alloc(msgp)) {
-			msgp->value[0] = adc_samples[7];
-			msgp->value[1] = adc_samples[5];
-			msgp->value[2] = adc_samples[3];
-			msgp->value[3] = adc_samples[1];
-			msgp->value[4] = adc_samples[0];
-			msgp->value[5] = adc_samples[2];
-			msgp->value[6] = adc_samples[6];
-			msgp->value[7] = adc_samples[4];
+			msgp->value[0] = 1000.0*voltToDist(adc_samples[7]*adcPrecision);
+			msgp->value[1] = 1000.0*voltToDist(adc_samples[5]*adcPrecision);
+			msgp->value[2] = 1000.0*voltToDist(adc_samples[3]*adcPrecision);
+			msgp->value[3] = 1000.0*voltToDist(adc_samples[1]*adcPrecision);
+			msgp->value[4] = 1000.0*voltToDist(adc_samples[0]*adcPrecision);
+			msgp->value[5] = 1000.0*voltToDist(adc_samples[2]*adcPrecision);
+			msgp->value[6] = 1000.0*voltToDist(adc_samples[6]*adcPrecision);
+			msgp->value[7] = 1000.0*voltToDist(adc_samples[4]*adcPrecision);
 
 			_pub.publish(msgp);
 	}
@@ -123,6 +125,29 @@ bool IRNode::onLoop()
 	_stamp = core::os::Time::now();
 
 	return true;
+}
+
+float IRNode::voltToDist(volatile float val)
+{
+	auto volt = configuration().volt;
+	auto dist = configuration().dist;
+	volatile unsigned int values = configuration().values;
+	volatile unsigned int size = values > dist.size() ? dist.size() : values;
+
+	// take care the value is within range
+	// val = constrain(val, _in[0], _in[size-1]);
+	if (val <= volt[0]) return dist[0];
+	if (val >= volt[size-1]) return dist[size-1];
+
+	// search right interval
+	volatile unsigned int pos = 1;  // _in[0] already tested
+	while(val > volt[pos]) pos++;
+
+	// this will handle all exact "points" in the _in array
+	if (val == volt[pos]) return dist[pos];
+
+	// interpolate in the right segment for the rest
+	return linearize(val, volt[pos-1], volt[pos], dist[pos-1], dist[pos]);
 }
 
 }

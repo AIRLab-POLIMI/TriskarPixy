@@ -33,11 +33,18 @@ private:
 	onLoop();
 
 private:
+	 float voltToDist(float val);
+
+	 inline float linearize(float x, float in_min, float in_max, float out_min, float out_max)
+	 {
+	   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+	 }
+
+private:
 	core::mw::Publisher<sensor_msgs::Proximity> _pub;
 
 	core::os::Time _Ts;
 	core::os::Time _stamp;
-
 };
 
 }
