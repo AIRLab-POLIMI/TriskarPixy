@@ -1,0 +1,21 @@
+{
+  "name": "SonarNodeConfiguration", 
+  "description": "Sonar node configuration", 
+  "namespace": "@", 
+  "fields": [ 
+    {
+      "name": "topic", 
+      "description": "Name of the topic", 
+      "type": "CHAR", 
+      "size": 16 
+    },
+    {
+     "name": "frequency",
+     "description": "Frequency of the publisher",
+     "type": "FLOAT32",
+     "size": 1
+    }
+    
+  ]
+}  
+ 

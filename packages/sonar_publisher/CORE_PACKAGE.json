@@ -1,0 +1,6 @@
+{
+  "name": "sonar_publisher",
+  "description": "Package for publishing up to 8 sonar readings", 
+  "provider": "core", 
+  "sources": ["SonarNode.cpp"]
+}  
