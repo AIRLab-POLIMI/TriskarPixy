@@ -1,4 +1,6 @@
 #include <core/ir_publisher/IRNode.hpp>
+#include <Module.hpp>
+#include <core/hw/GPIO.hpp> //TODO move in module?
 
 #include "hal.h"
 
@@ -66,15 +68,14 @@ bool IRNode::onConfigure()
 	_Ts = core::os::Time::hz(configuration().frequency);
 	_stamp = core::os::Time::now();
 
-
-	palSetPadMode(GPIOA, GPIOA_PIN0, PAL_MODE_INPUT_ANALOG);
-	palSetPadMode(GPIOA, GPIOA_PIN1, PAL_MODE_INPUT_ANALOG);
-	palSetPadMode(GPIOA, GPIOA_PIN2, PAL_MODE_INPUT_ANALOG);
-	palSetPadMode(GPIOA, GPIOA_PIN3, PAL_MODE_INPUT_ANALOG);
-	palSetPadMode(GPIOA, GPIOA_PIN4, PAL_MODE_INPUT_ANALOG);
-	palSetPadMode(GPIOA, GPIOA_PIN5, PAL_MODE_INPUT_ANALOG);
-	palSetPadMode(GPIOA, GPIOA_PIN6, PAL_MODE_INPUT_ANALOG);
-	palSetPadMode(GPIOA, GPIOA_PIN7, PAL_MODE_INPUT_ANALOG);
+	Module::a1.setMode(core::hw::Pad::INPUT_ANALOG);
+	Module::a2.setMode(core::hw::Pad::INPUT_ANALOG);
+	Module::a3.setMode(core::hw::Pad::INPUT_ANALOG);
+	Module::a4.setMode(core::hw::Pad::INPUT_ANALOG);
+	Module::a5.setMode(core::hw::Pad::INPUT_ANALOG);
+	Module::a6.setMode(core::hw::Pad::INPUT_ANALOG);
+	Module::a7.setMode(core::hw::Pad::INPUT_ANALOG);
+	Module::a8.setMode(core::hw::Pad::INPUT_ANALOG);
 
 	return true;
 }
@@ -89,7 +90,7 @@ bool IRNode::onPrepareMW()
 
 bool IRNode::onStart()
 {
-	palWritePad(GPIOA, GPIOA_PIN12, PAL_LOW);
+	palWritePad(GPIOA, GPIOA_PIN12, PAL_LOW); //TODO aggiungere pad a modulo
 	palWritePad(GPIOC, GPIOC_PIN15, PAL_LOW);
 
 	adcStart(&ADCD1, NULL);

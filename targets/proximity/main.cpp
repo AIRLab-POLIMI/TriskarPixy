@@ -7,6 +7,7 @@
 // NODES
 #include <core/led/Subscriber.hpp>
 #include <core/ir_publisher/IRNode.hpp>
+//#include <core/sonar_publisher/SonarNode.hpp>
 
 // BOARD IMPL
 

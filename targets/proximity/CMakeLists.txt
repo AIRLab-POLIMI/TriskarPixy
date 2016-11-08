@@ -19,6 +19,6 @@ core_target_module(
   MODULE proximity
   OS_VERSION CHIBIOS_3
   PACKAGES
-    sonar_publisher
+    ir_publisher
     sensor_msgs
 )
