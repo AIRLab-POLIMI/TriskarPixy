@@ -2,8 +2,6 @@
 #include <Module.hpp>
 #include <core/hw/GPIO.hpp> //TODO move in module?
 
-#include "hal.h"
-
 namespace core
 {
 
@@ -13,7 +11,8 @@ namespace sonar_publisher
 uint32_t SonarNode::start[8] = {0};
 uint32_t SonarNode::diff[8] = {0};
 
-static const EXTConfig extcfg = {
+static const EXTConfig extcfg =
+{
   {
     {EXT_CH_MODE_DISABLED, NULL},
     {EXT_CH_MODE_DISABLED, NULL},
@@ -48,6 +47,7 @@ SonarNode::SonarNode(const char* name, core::os::Thread::Priority priority) :
 {
    _workingAreaSize = 768;
    _Ts = 0;
+   low = true;
 }
 
 SonarNode::~SonarNode()
@@ -99,28 +99,12 @@ bool SonarNode::onLoop()
 
 	core::sensor_msgs::Proximity* msgp;
 
-	//Start sonars (side 1)
-	Module::a1.set();
-	Module::a2.set();
-	Module::a3.set();
-	Module::a4.set();
-	halPolledDelay(US2RTT(10));
-	Module::a1.clear();
-	Module::a2.clear();
-	Module::a3.clear();
-	Module::a4.clear();
+	if(low)
+		startSonarLow();
+	else
+		startSonarHigh();
 
-	//Start sonars (side 2)
-	Module::a5.set();
-	Module::a6.set();
-	Module::a7.set();
-	Module::a8.set();
-	halPolledDelay(US2RTT(10));
-	Module::a5.clear();
-	Module::a6.clear();
-	Module::a7.clear();
-	Module::a8.clear();
-
+	low = !low;
 
 	if (_pub.alloc(msgp))
 	{
@@ -141,18 +125,46 @@ bool SonarNode::onLoop()
 	return true;
 }
 
+void SonarNode::startSonarLow()
+{
+	//Start sonars (side 1)
+	Module::a1.set();
+	Module::a2.set();
+	Module::a3.set();
+	Module::a4.set();
+	osalSysPolledDelayX(US2ST(10));
+	Module::a1.clear();
+	Module::a2.clear();
+	Module::a3.clear();
+	Module::a4.clear();
+}
 
-void SonarNode::ext_cb(EXTDriver *extp, expchannel_t channel) {
+void SonarNode::startSonarHigh()
+{
+	//Start sonars (side 2)
+	Module::a5.set();
+	Module::a6.set();
+	Module::a7.set();
+	Module::a8.set();
+	osalSysPolledDelayX(US2ST(10));
+	Module::a5.clear();
+	Module::a6.clear();
+	Module::a7.clear();
+	Module::a8.clear();
+}
 
+
+
+void SonarNode::ext_cb(EXTDriver *extp, expchannel_t channel)
+{
 	(void)extp;
 
 	switch (channel)
 	{
-	case D1_PIN:
+	case 11:
 		if (Module::d1.read())
 		{
 			start_measure(1);
-
 		}
 		else
 		{
@@ -160,7 +172,7 @@ void SonarNode::ext_cb(EXTDriver *extp, expchannel_t channel) {
 		}
 		break;
 
-	case D2_PIN:
+	case 10:
 		if (Module::d2.read())
 		{
 			start_measure(2);
@@ -171,7 +183,7 @@ void SonarNode::ext_cb(EXTDriver *extp, expchannel_t channel) {
 		}
 		break;
 
-	case D3_PIN:
+	case 8:
 		if (Module::d3.read())
 		{
 			start_measure(3);
@@ -182,7 +194,7 @@ void SonarNode::ext_cb(EXTDriver *extp, expchannel_t channel) {
 		}
 		break;
 
-	case D4_PIN:
+	case 9:
 		if (Module::d4.read())
 		{
 			start_measure(4);
@@ -193,7 +205,7 @@ void SonarNode::ext_cb(EXTDriver *extp, expchannel_t channel) {
 		}
 		break;
 
-	case D5_PIN:
+	case 7:
 		if (Module::d5.read())
 		{
 			start_measure(5);
@@ -204,7 +216,7 @@ void SonarNode::ext_cb(EXTDriver *extp, expchannel_t channel) {
 		}
 		break;
 
-	case D6_PIN:
+	case 6:
 		if (Module::d6.read())
 		{
 			start_measure(6);
@@ -215,7 +227,7 @@ void SonarNode::ext_cb(EXTDriver *extp, expchannel_t channel) {
 		}
 		break;
 
-	case D7_PIN:
+	case 4:
 		if (Module::d7.read())
 		{
 			start_measure(7);
@@ -226,7 +238,7 @@ void SonarNode::ext_cb(EXTDriver *extp, expchannel_t channel) {
 		}
 		break;
 
-	case D8_PIN:
+	case 5:
 		if (Module::d8.read())
 		{
 			start_measure(8);
@@ -244,13 +256,13 @@ void SonarNode::ext_cb(EXTDriver *extp, expchannel_t channel) {
 
 void SonarNode::start_measure(int id)
 {
-	  start[id - 1] = halGetCounterValue();
+	  start[id - 1] = osalOsGetSystemTimeX();
 }
 
 void SonarNode::stop_measure(int id)
 {
-	  uint32_t stop = halGetCounterValue();
-	  diff[id - 1] = RTT2US(stop - start[id - 1]);
+	  volatile uint32_t stop = osalOsGetSystemTimeX();
+	  diff[id - 1] = ST2US(stop - start[id - 1]);
 }
 
 }
