@@ -6,7 +6,10 @@
 #include <core/sonar_publisher/SonarNodeConfiguration.hpp>
 #include <core/sensor_msgs/Proximity.hpp>
 
+#include <core/hw/GPIO.hpp>
+
 #include "hal.h"
+
 
 namespace core
 {
@@ -36,11 +39,9 @@ private:
 
 
 public:
-	static void ext_cb(EXTDriver *extp, expchannel_t channel);
+	static void ext_cb(expchannel_t channel);
 
 private:
-	static void start_measure(int id);
-	static void stop_measure(int id);
 	static void startSonarLow();
 	static void startSonarHigh();
 
@@ -51,8 +52,8 @@ private:
 	core::os::Time _stamp;
 
 private:
-	static uint32_t start[8];
-	static uint32_t diff[8];
+	static time_measurement_t tm[8];
+	static core::hw::Pad* channels[8];
 	bool low;
 
 };

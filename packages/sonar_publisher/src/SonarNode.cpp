@@ -1,6 +1,6 @@
 #include <core/sonar_publisher/SonarNode.hpp>
 #include <Module.hpp>
-#include <core/hw/GPIO.hpp> //TODO move in module?
+#include <core/hw/EXT.hpp>
 
 namespace core
 {
@@ -8,38 +8,19 @@ namespace core
 namespace sonar_publisher
 {
 
-uint32_t SonarNode::start[8] = {0};
-uint32_t SonarNode::diff[8] = {0};
+time_measurement_t SonarNode::tm[8];
 
-static const EXTConfig extcfg =
+core::hw::Pad* SonarNode::channels[8] =
 {
-  {
-    {EXT_CH_MODE_DISABLED, NULL},
-    {EXT_CH_MODE_DISABLED, NULL},
-    {EXT_CH_MODE_DISABLED, NULL},
-    {EXT_CH_MODE_DISABLED, NULL},
-    {EXT_CH_MODE_BOTH_EDGES | EXT_MODE_GPIOB | EXT_CH_MODE_AUTOSTART, SonarNode::ext_cb},
-    {EXT_CH_MODE_BOTH_EDGES | EXT_MODE_GPIOB | EXT_CH_MODE_AUTOSTART, SonarNode::ext_cb},
-    {EXT_CH_MODE_BOTH_EDGES | EXT_MODE_GPIOB | EXT_CH_MODE_AUTOSTART, SonarNode::ext_cb},
-    {EXT_CH_MODE_BOTH_EDGES | EXT_MODE_GPIOB | EXT_CH_MODE_AUTOSTART, SonarNode::ext_cb},
-    {EXT_CH_MODE_BOTH_EDGES | EXT_MODE_GPIOA | EXT_CH_MODE_AUTOSTART, SonarNode::ext_cb},
-    {EXT_CH_MODE_BOTH_EDGES | EXT_MODE_GPIOA | EXT_CH_MODE_AUTOSTART, SonarNode::ext_cb},
-    {EXT_CH_MODE_BOTH_EDGES | EXT_MODE_GPIOA | EXT_CH_MODE_AUTOSTART, SonarNode::ext_cb},
-    {EXT_CH_MODE_BOTH_EDGES | EXT_MODE_GPIOA | EXT_CH_MODE_AUTOSTART, SonarNode::ext_cb},
-    {EXT_CH_MODE_DISABLED, NULL},
-    {EXT_CH_MODE_DISABLED, NULL},
-    {EXT_CH_MODE_DISABLED, NULL},
-    {EXT_CH_MODE_DISABLED, NULL},
-    {EXT_CH_MODE_DISABLED, NULL},
-    {EXT_CH_MODE_DISABLED, NULL},
-    {EXT_CH_MODE_DISABLED, NULL},
-    {EXT_CH_MODE_DISABLED, NULL},
-    {EXT_CH_MODE_DISABLED, NULL},
-    {EXT_CH_MODE_DISABLED, NULL},
-    {EXT_CH_MODE_DISABLED, NULL}
-  }
+   &Module::d7,
+   &Module::d8,
+   &Module::d6,
+   &Module::d5,
+   &Module::d3,
+   &Module::d4,
+   &Module::d2,
+   &Module::d1
 };
-
 
 SonarNode::SonarNode(const char* name, core::os::Thread::Priority priority) :
 					CoreNode::CoreNode(name, priority),
@@ -58,7 +39,6 @@ SonarNode::~SonarNode()
 bool SonarNode::onConfigure()
 {
 	_Ts = core::os::Time::hz(configuration().frequency);
-	_stamp = core::os::Time::now();
 
 
 	Module::a1.setMode(core::hw::Pad::OUTPUT_PUSHPULL);
@@ -68,7 +48,34 @@ bool SonarNode::onConfigure()
 	Module::a5.setMode(core::hw::Pad::OUTPUT_PUSHPULL);
 	Module::a6.setMode(core::hw::Pad::OUTPUT_PUSHPULL);
 	Module::a7.setMode(core::hw::Pad::OUTPUT_PUSHPULL);
-	Module::a8.setMode(core::hw::Pad::OUTPUT_PUSHPULL); // PAL_STM32_OSPEED_HIGHEST ??
+	Module::a8.setMode(core::hw::Pad::OUTPUT_PUSHPULL); //TODO PAL_STM32_OSPEED_HIGHEST ??
+
+    core::hw::EXTChannel_<core::hw::EXT_1, 11, EXT_CH_MODE_BOTH_EDGES | EXT_MODE_GPIOA> echo1;
+    core::hw::EXTChannel_<core::hw::EXT_1, 10, EXT_CH_MODE_BOTH_EDGES | EXT_MODE_GPIOA> echo2;
+    core::hw::EXTChannel_<core::hw::EXT_1, 8, EXT_CH_MODE_BOTH_EDGES | EXT_MODE_GPIOA> echo3;
+    core::hw::EXTChannel_<core::hw::EXT_1, 9, EXT_CH_MODE_BOTH_EDGES | EXT_MODE_GPIOA> echo4;
+    core::hw::EXTChannel_<core::hw::EXT_1, 7, EXT_CH_MODE_BOTH_EDGES | EXT_MODE_GPIOB> echo5;
+    core::hw::EXTChannel_<core::hw::EXT_1, 6, EXT_CH_MODE_BOTH_EDGES | EXT_MODE_GPIOB> echo6;
+    core::hw::EXTChannel_<core::hw::EXT_1, 4, EXT_CH_MODE_BOTH_EDGES | EXT_MODE_GPIOB> echo7;
+    core::hw::EXTChannel_<core::hw::EXT_1, 5, EXT_CH_MODE_BOTH_EDGES | EXT_MODE_GPIOB> echo8;
+
+    echo1.setCallback(ext_cb);
+    echo2.setCallback(ext_cb);
+    echo3.setCallback(ext_cb);
+    echo4.setCallback(ext_cb);
+    echo5.setCallback(ext_cb);
+    echo6.setCallback(ext_cb);
+    echo7.setCallback(ext_cb);
+    echo8.setCallback(ext_cb);
+
+    echo1.enable();
+    echo2.enable();
+    echo3.enable();
+    echo4.enable();
+    echo5.enable();
+    echo6.enable();
+    echo7.enable();
+    echo8.enable();
 
 	return true;
 }
@@ -83,10 +90,13 @@ bool SonarNode::onPrepareMW()
 
 bool SonarNode::onStart()
 {
+	for (int i = 0; i < 8; i++)
+	{
+	   	chTMObjectInit(tm + i);
+	}
+
 	palWritePad(GPIOA, GPIOA_PIN12, PAL_LOW); //TODO aggiungere pad a modulo
 	palWritePad(GPIOC, GPIOC_PIN15, PAL_LOW);
-
-	extStart(&EXTD1, &extcfg);
 
 	_stamp = core::os::Time::now();
 
@@ -108,14 +118,14 @@ bool SonarNode::onLoop()
 
 	if (_pub.alloc(msgp))
 	{
-		msgp->value[0] = diff[0] / 5.8;
-		msgp->value[1] = diff[1] / 5.8;
-		msgp->value[2] = diff[2] / 5.8;
-		msgp->value[3] = diff[3] / 5.8;
-		msgp->value[4] = diff[4] / 5.8;
-		msgp->value[5] = diff[5] / 5.8;
-		msgp->value[6] = diff[6] / 5.8;
-		msgp->value[7] = diff[7] / 5.8;
+		msgp->value[0] = RTC2US(STM32_SYSCLK, tm[7].last) / 5.8f;
+		msgp->value[1] = RTC2US(STM32_SYSCLK, tm[6].last) / 5.8f;
+		msgp->value[2] = RTC2US(STM32_SYSCLK, tm[4].last) / 5.8f;
+		msgp->value[3] = RTC2US(STM32_SYSCLK, tm[5].last) / 5.8f;
+		msgp->value[4] = RTC2US(STM32_SYSCLK, tm[3].last) / 5.8f;
+		msgp->value[5] = RTC2US(STM32_SYSCLK, tm[2].last) / 5.8f;
+		msgp->value[6] = RTC2US(STM32_SYSCLK, tm[0].last) / 5.8f;
+		msgp->value[7] = RTC2US(STM32_SYSCLK, tm[1].last) / 5.8f;
 
 		_pub.publish(msgp);
 	}
@@ -132,7 +142,7 @@ void SonarNode::startSonarLow()
 	Module::a2.set();
 	Module::a3.set();
 	Module::a4.set();
-	osalSysPolledDelayX(US2ST(10));
+	osalSysPolledDelayX(OSAL_US2ST(10));
 	Module::a1.clear();
 	Module::a2.clear();
 	Module::a3.clear();
@@ -146,7 +156,7 @@ void SonarNode::startSonarHigh()
 	Module::a6.set();
 	Module::a7.set();
 	Module::a8.set();
-	osalSysPolledDelayX(US2ST(10));
+	osalSysPolledDelayX(OSAL_US2ST(10));
 	Module::a5.clear();
 	Module::a6.clear();
 	Module::a7.clear();
@@ -155,114 +165,21 @@ void SonarNode::startSonarHigh()
 
 
 
-void SonarNode::ext_cb(EXTDriver *extp, expchannel_t channel)
+void SonarNode::ext_cb(expchannel_t channel)
 {
-	(void)extp;
+	uint16_t index = channel - 4;
 
-	switch (channel)
+	if ((index < 0) || (index > 7))
+		return;
+
+	if (channels[index]->read())
 	{
-	case 11:
-		if (Module::d1.read())
-		{
-			start_measure(1);
-		}
-		else
-		{
-			stop_measure(1);
-		}
-		break;
-
-	case 10:
-		if (Module::d2.read())
-		{
-			start_measure(2);
-		}
-		else
-		{
-			stop_measure(2);
-		}
-		break;
-
-	case 8:
-		if (Module::d3.read())
-		{
-			start_measure(3);
-		}
-		else
-		{
-			stop_measure(3);
-		}
-		break;
-
-	case 9:
-		if (Module::d4.read())
-		{
-			start_measure(4);
-		}
-		else
-		{
-			stop_measure(4);
-		}
-		break;
-
-	case 7:
-		if (Module::d5.read())
-		{
-			start_measure(5);
-		}
-		else
-		{
-			stop_measure(5);
-		}
-		break;
-
-	case 6:
-		if (Module::d6.read())
-		{
-			start_measure(6);
-		}
-		else
-		{
-			stop_measure(6);
-		}
-		break;
-
-	case 4:
-		if (Module::d7.read())
-		{
-			start_measure(7);
-		}
-		else
-		{
-			stop_measure(7);
-		}
-		break;
-
-	case 5:
-		if (Module::d8.read())
-		{
-			start_measure(8);
-		}
-		else
-		{
-			stop_measure(8);
-		}
-		break;
-
-	default:
-		break;
+		chTMStartMeasurementX(tm + index);
 	}
-}
-
-void SonarNode::start_measure(int id)
-{
-	  start[id - 1] = osalOsGetSystemTimeX();
-}
-
-void SonarNode::stop_measure(int id)
-{
-	  volatile uint32_t stop = osalOsGetSystemTimeX();
-	  diff[id - 1] = ST2US(stop - start[id - 1]);
+	else
+	{
+		chTMStopMeasurementX(tm + index);
+	}
 }
 
 }
