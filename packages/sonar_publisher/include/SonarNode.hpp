@@ -42,8 +42,8 @@ public:
 	static void ext_cb(expchannel_t channel);
 
 private:
-	static void startSonarLow();
-	static void startSonarHigh();
+	void startSonarLow();
+	void startSonarHigh();
 
 private:
 	core::mw::Publisher<sensor_msgs::Proximity> _pub;
@@ -54,6 +54,7 @@ private:
 private:
 	static time_measurement_t tm[8];
 	static core::hw::Pad* channels[8];
+
 	bool low;
 
 };

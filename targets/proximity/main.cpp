@@ -46,6 +46,7 @@ extern "C" {
       core::sonar_publisher::SonarNodeConfiguration sonar_conf;
       sonar_conf.topic = "proximity";
       sonar_conf.frequency = 20;
+      sonar_conf.pulse_width = 20;
       sonar_publisher.setConfiguration(sonar_conf);
 
 

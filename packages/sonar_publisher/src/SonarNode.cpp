@@ -142,7 +142,7 @@ void SonarNode::startSonarLow()
 	Module::a2.set();
 	Module::a3.set();
 	Module::a4.set();
-	osalSysPolledDelayX(OSAL_US2ST(10));
+	osalSysPolledDelayX(OSAL_US2ST(configuration().pulse_width));
 	Module::a1.clear();
 	Module::a2.clear();
 	Module::a3.clear();
@@ -156,7 +156,7 @@ void SonarNode::startSonarHigh()
 	Module::a6.set();
 	Module::a7.set();
 	Module::a8.set();
-	osalSysPolledDelayX(OSAL_US2ST(10));
+	osalSysPolledDelayX(OSAL_US2ST(configuration().pulse_width));
 	Module::a5.clear();
 	Module::a6.clear();
 	Module::a7.clear();
