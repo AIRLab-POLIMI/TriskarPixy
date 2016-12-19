@@ -20,7 +20,7 @@
 #include <triskar_msgs/Pixy.h>
 #include <triskar_msgs/PixyServo.h>
 #include <std_msgs/ColorRGBA.h>
-#include <triskar_msgs/IR.h>
+#include <triskar_msgs/Proximity.h>
 
 #define USE_USB_SERIAL 1
 #include "ch.h"
@@ -108,7 +108,7 @@ private:
 	//ROS
 	geometry_msgs::Twist ros_twist_msg;
 	triskar_msgs::Pixy ros_pixy_msg;
-	triskar_msgs::IR ros_ir_msg;
+	triskar_msgs::Proximity ros_ir_msg;
 	geometry_msgs::Vector3 ros_enc_msg; //TODO change
 
 	ros::Publisher twist_pub;
