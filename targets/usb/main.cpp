@@ -35,7 +35,7 @@ extern "C" {
    int main( void )
    {
 	  const float wheelRadius = 0.035f;
-	  const float centerDistance = 0.160f;
+	  const float centerDistance = 0.100f;
 
       module.initialize();
 
