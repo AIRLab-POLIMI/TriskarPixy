@@ -62,7 +62,7 @@ Forward::onLoop()
 
    float dx = R*sin(pi<float>()/3.0)*_speed[0] - R*sin(pi<float>()/3.0)*_speed[1];
    float dy = R*cos(pi<float>()/3.0)*_speed[0] + R*cos(pi<float>()/3.0)*_speed[1] - R * _speed[2];
-   float dphi = (_speed[0]+_speed[1]+_speed[2])*R/L;
+   float dphi = (_speed[0]+_speed[1]+_speed[2])*R/3.0/L;
 
    if (this->spin(ModuleConfiguration::SUBSCRIBER_SPIN_TIME)) {
       if (_publisher.alloc(velocity)) {
