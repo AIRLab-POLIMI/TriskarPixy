@@ -36,7 +36,7 @@ extern "C" {
    int
    main()
    {
-	  const float period = 50.0;
+	  const float period = 10.0;
 	  const float pwmMax = 1.0;
 
       module.initialize();

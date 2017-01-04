@@ -77,11 +77,9 @@ Inverse::callback(
    /// DO THE MATH
    float dtheta[3];
 
-   dtheta[0] = (sin(pi<float>()/3.0)*dy + (cos(pi<float>()/3.0)+1)*dx + 3.0*L*dphi*sin(pi<float>()/3.0))
-		/ (R*(2.0*cos(pi<float>()/3.0)+2.0)*sin(pi<float>()/3.0));
-   dtheta[1] = (sin(pi<float>()/3.0)*dy - (cos(pi<float>()/3.0)+1)*dx + 3.0*L*dphi*sin(pi<float>()/3.0))
-		/ (R*(2.0*cos(pi<float>()/3.0)+2.0)*sin(pi<float>()/3.0));
-   dtheta[2] = (-dy + 3.0*L*cos(pi<float>()/3.0)*dphi)/(R*(cos(pi<float>()/3.0)+1));
+   dtheta[0] =  (cos(pi<float>()/6.0)*dx + 0.5*dy + dphi*L)/R;
+   dtheta[1] =  (-cos(pi<float>()/6.0)*dx + 0.5*dy + dphi*L)/R;
+   dtheta[2] =  (-dy + dphi*L)/R;
 
    for(unsigned int i = 0; i < 3; i++)
    {
