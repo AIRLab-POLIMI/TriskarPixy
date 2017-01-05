@@ -19,5 +19,5 @@ core_target_module(
   MODULE udc
   OS_VERSION CHIBIOS_3
   PACKAGES
-    pid
+    pid_ie
 )
