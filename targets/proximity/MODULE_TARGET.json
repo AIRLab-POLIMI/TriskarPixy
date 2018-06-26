@@ -2,9 +2,18 @@
   "name": "proximity",
   "description": "proximity",
   "module": "proximity",
-  "required_packages": [ "sonar_publisher", "sensor_msgs" ],
+  "os_version": "CHIBIOS_16",
+  "required_os_components": [],
+  "required_packages": [
+    "common_msgs",
+    "led",
+    "sonar_publisher", 
+    "sensor_msgs" 
+  ],
   "sources": [
     "main.cpp"
   ],
-  "includes": []
+  "includes": [],
+  "bootloader_size": 16384,
+  "configuration_size": 2048
 }

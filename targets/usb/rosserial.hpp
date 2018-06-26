@@ -22,10 +22,7 @@
 #include <std_msgs/ColorRGBA.h>
 #include <triskar_msgs/Proximity.h>
 
-#define USE_USB_SERIAL 1
-#include "ch.h"
-#include "hal.h"
-#include <usbcfg.h>
+//#define USE_USB_SERIAL 1
 #include <ros.h>
 
 namespace rosserial {

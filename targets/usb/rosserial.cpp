@@ -239,7 +239,7 @@ bool RosSerialPublisher::onStart()
 
 bool RosSerialPublisher::onLoop() {
 
-	core::os::Thread::sleep_until(_stamp + core::os::Time::hz(100));
+	core::os::Thread::sleep_until(_stamp + core::os::Time::ms(10));
 
 	if(this->spin(core::os::Time::ms(1)))
 	{

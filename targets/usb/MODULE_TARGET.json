@@ -2,14 +2,27 @@
   "name": "usb",
   "description": "usb",
   "module": "usb",
-  "required_packages": [ "pixy_driver", "pixy_msgs", 
-  "triskar_kinematics", "triskar_msgs",
-  "actuator_msgs", "sensor_msgs"],
+  "os_version": "CHIBIOS_16",
+  "required_os_components": [],
+  "required_packages": [
+    "common_msgs",
+    "led",
+    "pixy_driver", 
+    "pixy_msgs", 
+  	"triskar_kinematics",
+  	"triskar_msgs",
+  	"actuator_msgs", 
+  	"sensor_msgs"
+  ],
   "sources": [
-    "main.cpp", 
+    "main.cpp",
     "rosserial.cpp",
     "ros_lib/duration.cpp",
     "ros_lib/time.cpp"
   ],
-  "includes": ["ros_lib"]
+  "includes": [
+  	"ros_lib"
+  ],
+  "bootloader_size": 16384,
+  "configuration_size": 2048
 }
